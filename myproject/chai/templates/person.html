@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Intern Details:- </h1>
+    {% for persons in allperson %}
+    {% if persons.isAuthenticated %}
+    <p>{{persons.name}} is working in {{persons.time}} shift with {{persons.stock}} stock.</p>
+    {% endif %}
+    {% endfor %}
+</body>
+</html>

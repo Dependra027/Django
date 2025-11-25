@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        username:
+        <input type="text" id="username" name="username" required>
+        <br>
+        email:
+        <input type="email" id="email" name="email" required>
+        <br>
+        password:
+        <input type="password" id="password" name="password" >
+        <br>
+        <input type="submit" value="sign up">
+    </form>
+
+    {% if account_created %}
+    <h1>signup Successfully</h1>
+    {% endif %}
+</body>
+</html>

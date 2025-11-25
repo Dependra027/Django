@@ -1,0 +1,6 @@
+{% for post in posts%}
+<h1>{{post.title}}</h1>
+<p>{{post.post}}</p>
+<a href="{%url 'blogpost_detail' post.id %}">view details</a>
+
+{% endfor %}

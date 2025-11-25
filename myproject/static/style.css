@@ -1,0 +1,10 @@
+body{
+    background-color: lightblue;
+    font-family: Arial, sans-serif;
+}
+h1{
+    color: navy;
+    text-align: center;
+}
+
+/* add in the template index file */

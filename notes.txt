@@ -1,0 +1,738 @@
+** forms
+1. Why Forms Exist in Django
+Most beginners think forms are just HTML <form> tags. WRONG.
+
+Django Forms handle three big responsibilities:
+
+1. Rendering → Generate HTML form fields automatically
+2. Validation → Clean user data, check errors
+3. Safe Handling → Prevent attacks (CSRF)
+
+In real-world projects, 70% of bugs come from form validation + security. Django handles this for you.
+
+ways to work with forms:-
+1. Returning HTML markup as HTTP response
+2. HTML Forms with DJANGO templates
+3. Django forms
+4. modal forms
+
+***CSRF (cross site request frogery)
+it is a type of security vulnerability
+Csrf protection is a security measure to prevent vulnerability
+
+You are building a website.
+Attacker builds another website that sends POST requests to YOUR site.
+Your user is logged in → attacker’s form submits fake data on your user's behalf.
+
+Example attack:
+
+<form action="https://yourwebsite.com/delete-account" method="POST">
+    <input type="hidden" name="confirm" value="yes">
+</form>
+<script>document.forms[0].submit();</script>
+Your user’s account is deleted without consent.
+
+Django’s Solution = CSRF Token
+A hidden, random, per-session token.
+
+Template
+<form method="POST">
+    {% csrf_token %}
+If token missing → 403 Forbidden.
+Django blocks attacks automatically.
+
+*** GET vs POST — Stop Being Confused
+1. GET Request
+a. Sent through URL query parameters
+b. Used for reading data
+c. NOT secure
+
+Ex: /search?query=python
+
+2. POST Request
+a. Sent through request body
+b. Used for creating/updating data
+c. Secure
+
+Used in forms that change the database
+
+🔥 Rule:
+Forms that modify data → Use POST
+Forms that fetch data → Use GET
+
+*** ways
+1. Returning HTML markup as HTTP response
+
+def simpleForm(request):
+    return HttpResponse(f"""<form method="post">
+    <label for="text1">Textbox 1:</label>
+    <input type="text" name="text1" id="text1">
+
+    <br><br>
+
+    <label for="text2">Textbox 2:</label>
+    <input type="text" name="text2" id="text2">
+
+    <br><br>
+
+    <input type="submit" value="Submit">
+</form>""")
+
+we simply return an html form in HttpResponse.
+but when we submit it we get csrf token issue so we need to add csrf.
+
+so  for this we first import csrf token in views
+** from django.middleware.csrf import get_token
+
+and then we make a variable and make a hidden input for csrf
+
+def simpleForm(request):
+
+//making csrf
+csrf_token=get_token(request)
+
+    return HttpResponse(f"""<form method="post">
+
+//making hidden field
+    <input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">
+
+    <label for="text1">Textbox 1:</label>
+    <input type="text" name="text1" id="text1">
+
+    <br><br>
+
+    <label for="text2">Textbox 2:</label>
+    <input type="text" name="text2" id="text2">
+
+    <br><br>
+
+    <input type="submit" value="Submit">
+</form>""")
+
+now to print the inputs we use if else
+
+if request.method=="POST":
+    textbox1=request.POST.get("name_of_textbox1")
+    textbox2=request.POST.get("name_of_textbox2")
+
+    return HttpResponse(f"The values are {textbox1} and {textbox2}")
+
+** 2nd way
+HTML Forms with DJANGO templates
+
+1. create a template forms.html
+
+<body>
+    <form method="post">
+        <!-- adding csrf token -->
+        {% csrf_token %}
+        name: 
+        <input type="text" name="name">
+        <br>
+        email:
+        <input type="email" name="email">
+        <br>
+        password:
+        <input type="password" name="password">
+        <br>
+        <input type="submit" name="submit">
+
+    </form>
+</body>
+
+2. make view for it
+def formTemp(request):
+    if request.method=='POST':
+        name=request.POST.get("name")
+        email=request.POST.get("email")
+        password=request.POST.get("password")
+
+# validating if name ,emaila and password filled
+        if name and email and password:
+            return HttpResponse("Form submitted with name {name} and id {email}")
+   
+# render the form
+    return render(request,"forms.html")
+
+3. make url
+
+** 3rd way
+Django forms
+
+Syntax
+ field_name = forms.FieldType(**options)
+
+field_name: Name of the form field.
+FieldType: Type of the field (e.g., CharField, EmailField, IntegerField).
+options: Optional keyword arguments such as max_length, required, initial, label, etc.
+
+1. create a forms.py
+To create a form, create a "forms.py" file in app folder:
+
+
+from django import forms
+
+class InputForm(forms.Form):
+    first_name = forms.CharField(max_length=200)
+    last_name = forms.CharField(max_length=200)
+    roll_number = forms.IntegerField(help_text="Enter 6 digit roll number")
+    password = forms.CharField(widget=forms.PasswordInput())
+
+2. Render Django Forms
+Django form fields have several built-in methods to ease the work of the developer but sometimes one needs to implement things manually for customizing User Interface(UI). A form comes with 3 in-built methods that can be used to render Django form fields. 
+
+{{ form.as_table }} will render them as table cells wrapped in <tr> tags
+{{ form.as_p }} will render them wrapped in <p> tags
+{{ form.as_ul }} will render them wrapped in <li> tags
+
+3. make template form1.html
+
+<body>
+    <form method="post">
+
+    {% csrf_token %}
+    {{form.as_p}}
+    <input type="submit" name="submit">
+
+    </form>
+    
+</body>
+
+4. make view
+def form1(request):
+    if request.method=='POST':
+        form=InputForm(request.POST)
+
+        //inbuilt django validation
+        if form.is_valid():
+            return HttpResponse("form submitted successfully");
+    else:
+
+        form=InputForm()
+
+    return render(request,'form1.html',{'form':form})
+
+*** creating custom errors
+
+we will create view for it validation
+
+def validation(request):
+
+    submitForm= None
+    //making form
+    if request.method == 'POST':
+        name=request.POST.get('name')
+        email=request.POST.get('email')
+        password=request.POST.get('password')
+
+    // setting error bydefault None  
+        name_error=email_error=password_error=None
+//defining custom errors
+        if not name:
+            name_error="Name is mandatory"
+        if not email:
+            email_error="Email is mandatory"
+        if len(password)<6:
+            password_error="Password should be greater than 6 digits"
+
+        //if we have any of the error
+        if name_error or email_error or password_error:
+             return render(request,'valid.html',
+            {
+            # preserving the value so that the value should be present in the inpuut box
+             'name':name,
+             'email':email,
+             'password':password,
+
+            #  error 
+             'name_error':name_error,
+             'email_error':email_error,
+             'password_error':password_error})
+   
+    
+        // now we need that if form has no error, it should submit with the inputs
+        // so make a variable submitForm above
+        //takes value 
+        submitForm={
+            'name':name,
+            'email':email,
+            'password':password
+        }
+    return render(request,'valid.html',{'submitForm':submitForm})
+
+make valid.html template
+-> we used if condition so that show error only if error present
+
+*** django validation
+
+we create a from in forms.py
+
+class InputForm(forms.Form):
+    name=forms.CharField(max_length=100)
+    email=forms.EmailField(max_length=100)
+    password=forms.CharField(widget=forms.PasswordInput)
+
+now we create view
+
+form .forms import InputForm
+
+def Validation1(request):
+    submitted_details=None
+    if request.method=='POST'
+        form=InputForm(request.POST)
+       // using django validation 
+       if form.is_valid():
+          submitted_details=form.cleaned_data
+        return render(request,'form1.html',{'submitted_details':submitted_details})
+
+        //this is get method
+    form=InputForm()
+     return render(request,'form1.html',{'submitted_details':submitted_details})
+
+*** POST REDIRECT REFRESH pattern
+user submit post, server process it and give response but when page is refreshed it again give response i.e twice 
+
+hence to solve this we use post redirect- get 
+This pattern prevents:
+
+1. Duplicate form submissions
+2. Refresh → repeating POST request
+
+Flow:
+User submits POST
+Server processes
+Redirect user to GET page
+User cannot re-submit accidentally
+
+Django Implementation
+if form.is_valid():
+    form.save()
+    return redirect("success-page")
+
+Never return the same form page after POST.
+Always redirect.
+
+example
+//import redirect
+from django.shortcuts import render, redirect
+def simpleForm(request):
+    csrf_token=get_token(request)
+    if request.method=="POST":
+        textbox1=request.POST.get("text1")
+        textbox2=request.POST.get("text2")
+        //return HttpResponse(f"The values are {textbox1} and {textbox2}")
+        return redirect('success')
+    
+    else:
+        return HttpResponse(f"""<form method="post">
+                        
+        <input type="hidden" name="csrfmiddlewaretoken" value="{csrf_token}">
+                        
+        <label for="text1">Textbox 1:</label>
+        <input type="text" name="text1" id="text1">
+
+        <br><br>
+
+        <label for="text2">Textbox 2:</label>
+        <input type="text" name="text2" id="text2">
+
+        <br><br>
+
+        <input type="submit" value="Submit">
+</form>""")
+
+create url for it
+path(''sucees/',views.success,name='success')
+
+create a view
+def success(request):
+    return render(request,'success.html')
+
+create a success.html
+<body>
+<h1>your form is submitted successfully</h1>
+</body>
+
+now if we submitt the form it redirects that the form is submitted successfully and if we refresh there will be no pop up of resubmission hence no double response.
+
+**** Models
+in Django , a model is a python class that represents a database table.
+Each attribute of the model corresponds to a database field.
+
+creating model, it hs same structure as forms.py
+
+class Emp(models.Model):
+    firstname=models.CharField(max_length=255)
+    last_name=models.CharField(max_length=255)
+    salary=models.IntegerField()
+//to see strings not object
+    def __str__(self):
+    return f'{self.firstname}{self.lastname}
+
+now to know whether our table is created or not
+we use migration
+
+** Migrations
+It is a way to propagate changes you make to your models(i.e adding a field, deleting a model, or modifying a field) into your database schema.
+python manage.py makemigrations
+python manage.py migrate
+
+
+*** ORM (object relational mapping)
+-> it is a powerful feature that allows developerto interact with the db using python 
+code instead of writing sql queries.
+
+the orm maps Django models(python class) to db tables and allows for efficient quering and manipulation of data
+
+** we can add data using python shell
+write python manage.py shell in terminal.
+now terminal get activated 
+now,
+//first import the model
+from chai.models import Emp
+//now write orm query to add key value 
+Emp.objects.create(firstname='Dependra',lastname='kumar', salary=50000)
+//to check
+Emp.object.all()
+
+//to update data
+again import model
+from chai.models import Emp
+//make an variable which take out the primary key of the row you want toupdate
+e=Emp.objects.get(pk=1)
+//lets update salary of id=1
+e.salary=200000
+e.save()
+
+//to delete
+//fetch the id of which you want to delete
+e=Emp.objects.get(pk=2)
+e.delete()
+
+*** django admin
+to create superuser(admin username and password)
+
+python manage.py createsuperuser
+
+then it asks to create username and password 
+
+now we will perform
+1. add user’s
+2. add permissions
+3. add groups
+
+we can use django admin or shell to do this
+
+lets do it using python shell
+in shell first import user
+1.adding user
+
+>>> from django.contrib.auth.models import User
+// creating user
+>>>user=User.objects.create_user(username='dependra', email='xyz', password='123')
+>>>user.save()
+
+now we can see in django that we successfully created a user
+
+2. adding permission
+import 
+>>>from django.contrib.auth.models import Permission, User
+>>>from django.contrib.contenttypes.models import contenttypes
+>>>from chai.models import Emp
+//get the user for which you need to add permissions
+>>>user= User.objects.get(username='Dependra')
+>>>content_type=ContentType.objects.get_for_model(Emp)
+>>>view_permission=Permission.objects.get(codename='view_emp',content_type=content_type)
+>>>user.user_permissions.add(view_permission)
+
+this add view permission to user Dependra
+we can do this manually as well in django
+
+//register the model in admin to see the permissions
+admin.py
+# rgistering Emp model
+admin.site.register(Emp)
+
+3. creating group
+
+in shell
+>>> from django.contrib.auth.models import Group
+>>> group= Group(name="NewGroup")
+>>> group.save()
+//to see if created
+>>> group.objects.all()
+
+in same way give here permissions as well.
+
+*** setting up database connection
+now we will create model table and use form to add value to table
+
+so in models.py
+
+class FormModel(models.Model):
+    username=models.CharField(max_length=255)
+    email=models.CharField(unique=True)
+    password= models.CharField(max_length=100)
+
+
+now migrate it
+
+now lets create view for model, where we import the model as to connect it to signup.html
+
+from .models import FormModel
+
+def signup(request):
+    account_created=False
+    if request.method=='POST':
+        username=request.POST.get('username')
+        email=request.POST.get('email')
+        password=request.POST.get('password')
+        
+        # now to create the objects in model table
+        user=FormModel.objects.create(username=username, email=email, password=password)
+
+        # username=username, here left one is column name and other is the value that we take from the form 
+        user.save()
+        account_created=True
+    return render(request,'signUp.html',{'account_created':account_created})
+
+signup.html 
+
+<body>
+    <form method="post">
+        {% csrf_token %}
+        username:
+        <input type="text" id="username" name="username" required>
+        <br>
+        email:
+        <input type="email" id="email" name="email" required>
+        <br>
+        password:
+        <input type="password" id="password" name="password" >
+        <br>
+        <input type="submit" value="sign up">
+    </form>
+    {% if account_created %}
+    <h1>signup Successfully</h1>
+    {% endif %}
+</body>
+
+*** setting connection using django forms
+
+create a new form in form.py let it be Signup 
+
+class Signup(forms.Form):
+    username=forms.CharField(max_length=100)
+    email=forms.EmailField()
+    password=forms.CharField(widget=forms.PasswordInput)
+
+now import the form and model in views.py 
+
+def signup1(request):
+    account_created=Flase
+    if request.method=='POST':
+        form=Signup(request.POST)
+        if form.is_valid():
+            username=form.cleaned_data['username']
+            email=form.cleaned_data['email']
+            password=form.cleaned_data['password']
+            user=FormModel.objects.create(username=username,email=email,password=password)
+            user.save()
+            account_created=True
+    else:
+        form=Signup()
+    return render(request, 'signup1.html', {'form':form, 'account_created'=account_created})
+
+now create a signup1.html
+see it
+make its url
+
+*** setting connection using django modelForm
+first create a model 
+let it be same as FormModel
+
+now in forms.py
+we import the model
+
+then
+
+class SignupForm1(forms.ModelForm)
+    class Meta:
+        model= FormModel
+        fields: "__all__"
+
+notes:-
+ModelForm- it is a class in django that helps us in auto generating a form based django model
+
+class Meta: -> it is a inner class inside the form to provide the meta data
+
+fields = "__all__" -> we want all fields from FormModel
+
+
+import the form and model in views.py
+from .forms import SignupForm1
+from .models import FormModel
+def Signup2(request):
+    account_created=False
+    if request.method=='POST':
+        form = SignupForm1(request.POST)
+        if form.is_valid():
+        form.save()
+        account_created=True
+    else:
+        form SignupForm1()
+    return render(request,'Signup2.html',{'form':form, 'account_created':account_created})
+
+Then create Signup2.html(see)
+and path it
+
+lets perform crud operations for this
+1. first we store all data into a variabale
+
+user=FormModel.objects.all()
+then we add it into dictionary
+
+def Signup2(request):
+    //storing data
+    user=FormModel.objects.all()
+
+    account_created=False
+    if request.method=='POST':
+        form = SignupForm1(request.POST)
+        if form.is_valid():
+        form.save()
+        account_created=True
+        return render(request,'Signup2.html',{'form':form, 'account_created':account_created})
+    else:
+        form = SignupForm1()
+        // add user into dictionary
+     return render(request,'Signup2.html',{'form':form, 'users':user})
+
+as now the user is add into dictionary, we can now fetch data into the Signup2.html
+
+ <div>
+        <h2>ALl Users</h2>
+        {% if user %}
+        {% for user in users %}
+        <p>{{user.username}}</p>
+        <a href="{% url 'delete' user.id%}">Delete</a>
+        <a href="">Edit</a>
+        {% endfor %}
+        {% endif %}
+ </div>
+
+lets write logic for delete in views.py
+def delete(request,id):
+    # taking out the user with id
+    user=FormModel.objects.get(pk=id)
+    user.delete()
+    return redirect('signup2')
+
+create its url so to add in html
+path('delete/<int:id>',views.delete,name="delete")
+
+now create logic for Edit
+
+def edit(request,id):
+    user=FormModel.objects.get(pk=id)
+    if request.method=='POST':
+        form=SignupForm1(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('signup2')
+    else:
+        form=SignupForm1(instance=user)
+    return render(request, 'upadteForm.html', {'form':form, 'user':user})
+
+nots:-
+
+instance =user -> it is the shortcut to bind the form with existing model instance helping in refiling from fields and saving updates auto
+    
+now we need to create updateForm.html form
+
+** Model to template
+now will be learning how the data is sent to template from model
+
+we will be making a blogging website. we save the data and diplay in the page from model
+
+create a model
+class Blogpost(models.Model):
+    title=models.CharField(max_length=50)
+    post=models.CharField(max_length=500,default="")
+    #we are uploading images as well to store them and also put null=True as if image is not there it should show null
+    thumbnail=models.ImageField(upload_to="images/",null=True, blank=True )
+    def __str__(self):
+        return self.title
+
+python manage.py makemigrations
+python manage.py migrate
+
+now create a form
+from .models import Blogpost
+class BlogForm(forms.ModelForm):
+    class Meta:
+        model=Blogpost
+        fields="__all__"
+
+lets write the logic in view
+see insertblogpost view
+
+create a template insertForm.html(see)
+
+notes:-  enctype="multipart/form-data"
+this will be requiring the file upload, this will ensure that the file data is properly uploaded in the server
+
+create path now in url.py
+
+**now we will fetch data
+write blogposts in view and create a blogposts.html tamplate to show the posts
+
+now we can see that images are not able to be seen so we need to do
+some changes in the url of Main myproject
+
+add to imports
+from django.conf import settings
+from django.conf.urls.static import static
+
+then concat after url patters
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+** now we want to see an individual posts not all
+make the view for it
+and path
+
+*** Cookies
+stored small, temporary data in the browser to remember the user detail during visits like 
+login, carts, etc
+
+1. setting cookies- we use .set_cookie(key,value) to set the cookies
+see view- set_cookie
+now give path
+
+2. fetching the cookies
+we need to make as much variable as cookies are
+and use .COOKIES.get('cookie key')
+see viewgive path
+
+3. Delete Cookies
+.delete_cookie('cookie key')
+see view and url
+
+*** sessions
+these are same as cookies but the difference is that the cookie is 
+saved in the client side but that session is storeed in the server side
+making it more private and secure
+
+1. set session
+see view
+we use .session["key"]="value"
+create path url
+
+2. get session
+we need to make as much variable as seesions
+variable=request.session.get('key')
+create url path
+
+3. delete sessions
+request.session.clear()
+create url path

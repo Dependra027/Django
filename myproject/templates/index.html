@@ -1,0 +1,32 @@
+<!-- linking css file to html file -->
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+</head>
+<body>
+    <h1>hello!, this is template</h1>
+</body>
+</html>
+<!-- 
+notes:- 
+add templates in settings.py in templates box 
+
+to add css, make a folder named static in the main project directory and add css file in it. 
+then in html file add this line at the top:- 
+{% load static %} above the html code
+then link the css file like this:-
+<link rel="stylesheet" href="{% static 'cssfile.css' %}">
+
+then go in settings.py and add this at the bottom:-
+STATICFILES_DIRS = [BASE_DIR / "static"]
+also add import os at the top of settings.py file
+
+remember that whenever we use static keyword in html file, we have to load it at the top using {% load static %}
+-->

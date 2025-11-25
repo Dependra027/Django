@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{{post.title}}</h1>
+    <p>{{post.post}}</p>
+    {% if post.thumbnail %}
+    <img src="{{post.thumbnail.url}}" height="100" width="100">
+    {% endif %}
+    <a href="{%url 'blogposts' %}">back to blogposts</a>
+</body>
+</html>

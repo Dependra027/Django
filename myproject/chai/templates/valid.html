@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form method="post">
+        {% csrf_token %}
+        name: 
+        <input type="text" name="name" value="{{name}}">
+        {% if name_error %}
+        <span style="color:red">{{name_error}}</span>
+        {% endif %}
+        <br>
+        <br>
+        email:
+        <input type="email" name="email" value="{{email}}">
+        {% if email_error %}
+        <span style="color:red">{{email_error}}</span>
+        {% endif %}
+        <br>
+        <br>
+        password:
+        <input type="password" name="password" value="{{password}}">
+        {% if password_error %}
+        <span style="color:red">{{password_error}}</span>
+        {% endif %}
+        <br>
+        <input type="submit">
+
+        <!-- we will check if submitForm exist, we print the value  -->
+        {% if submitForm %}
+        <h2>The submitted details are: </h2>
+        <h3>Name: {{submitForm.name}}</h3>
+        <h4>Email: {{submitForm.email}}</h4>
+        {% endif %}
+    </form>
+</body>
+</html>

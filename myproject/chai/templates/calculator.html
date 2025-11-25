@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 24px;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+            background: #f7fafc;
+            color: #111827;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            border: 2px solid black;
+            padding: 20px 20px 24px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+        h2 {
+            margin: 0 0 16px;
+            font-weight: 700;
+            text-align: left;
+        }
+        .form-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .form-row label {
+            width: 140px;
+            font-weight: 600;
+            color: #374151;
+        }
+        .form-row input[type="number"], .form-row select {
+            flex: 1;
+            min-width: 0;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: #ffffff;
+        }
+        .form-row input[type="number"]:focus, .form-row select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        .actions {
+            margin-top: 8px;
+        }
+        button[type="submit"] {
+            padding: 10px 16px;
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover { background: #1d4ed8; }
+        .result {
+            margin-top: 16px;
+            padding: 12px 14px;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            color: #075985;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+    </style>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'unsafe-inline' 'self';">
+</head>
+<body>
+    <div class="container">
+        <h2>Calculator</h2>
+        <form method="post" novalidate>
+            {% csrf_token %}
+            <div class="form-row">
+                <label for="id_number1">{{ form.number1.label }}</label>
+                {{ form.number1 }}
+            </div>
+            <div class="form-row">
+                <label for="id_number2">{{ form.number2.label }}</label>
+                {{ form.number2 }}
+            </div>
+            <div class="form-row">
+                <label for="id_operation">{{ form.operation.label }}</label>
+                {{ form.operation }}
+            </div>
+            <div class="actions">
+                <button type="submit">Calculate</button>
+            </div>
+        </form>
+
+        {% if result is not None %}
+            <div class="result">Result: {{ result }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
+
+

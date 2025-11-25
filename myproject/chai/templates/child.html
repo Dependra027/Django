@@ -1,0 +1,25 @@
+{% extends "baseo.html" %}
+{% block header %}
+<h1>welcome to page</h1>
+{% endblock %}
+
+{% block nav %}
+<nav>
+    <li>home</li>
+    <li>
+    <!-- this is how we create links -->
+        <a href="{% url 'childlist' %}">products</a>
+    </li>
+</nav>
+{% endblock %}
+
+{% block content %}
+<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.<br>
+     Quam cupiditate facere soluta ex incidunt temporibus.<br>
+      Repellat necessitatibus laudantium quis nesciunt!</p>
+{% endblock %}
+
+{% block footer %}
+<h1>contacts:- </h1>
+<p>phone numner XXXXXXX</p>
+{% endblock %}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Django Form Example</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-control { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .error { color: red; font-size: 0.9em; }
+        .success { color: green; padding: 10px; background: #f0fff0; border: 1px solid green; }
+        .radio-group label { display: inline-block; margin-right: 15px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+
+<body>
+    <h1>Contact Form Example</h1>
+    
+    
+    
+    <form method="GET">
+        {% csrf_token %}
+        <p><strong>HTTP Method Used: {{ methodused }}</strong></p>
+        <div class="form-group">
+            <label for="id_name">Name:</label>
+            {{ form.name }}
+            {% if form.name.errors %}
+                <div class="error">{{ form.name.errors }}</div>
+            {% endif %}
+        </div>
+         <div class="form-group">
+            <label for="id_email">Write Here: </label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="error">{{ form.email.errors }}</div>
+            {% endif %}
+        </div>
+
+<div class="form-group">
+            <label>Preferred Contact Method:</label>
+            <div class="radio-group">
+                {{ form.contactmethod }}
+            </div>
+            {% if form.contactmethod.errors %}
+                <div class="error">{{ form.contactmethod.errors }}</div>
+            {% endif %}
+        </div>
+   <div class="form-group">
+            <label for="id_message">Message:</label>
+            {{ form.message }}
+            {% if form.message.errors %}
+                <div class="error">{{ form.message.errors }}</div>
+            {% endif %}
+        </div>
+   <button type="submit">Submit Form</button>
+    </form>
+
+    {% if submitteddata %}
+    <div class="success">
+        <h3>Form Submitted Successfully!</h3>
+        <p><strong>Write Here</strong> {{ submitteddata.name }}</p>
+      
+    </div>
+    <hr>
+    {% endif %}
+
+    
+</body>
+</html>

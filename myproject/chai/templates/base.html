@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ram Restaurent {% endblock %}</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        .header { background: #d32f2f; color: white; padding: 15px; text-align: center; }
+        .footer { background: #333; color: white; padding: 10px; text-align: center; margin-top: 20px; }
+        .content { padding: 20px; }
+        .menu-item { border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Ram Restaurant</h1>
+        <p>Traditional Delicious Food</p>
+    </div>
+
+    <div class="content">
+        {% block content %}
+        <!-- Different menu content will go here -->
+        {% endblock %}
+    </div>
+
+    <div class="footer">
+        <p>Contact: 1234, Main Street, City | Phone: 0123-456789</p>
+        <p>© 2023 Ram Restaurant. All rights reserved.</p>
+    </div>
+</body>
+</html>
